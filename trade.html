@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Kraken - Trade</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: #f8f9fc;
+            color: #2f2e41;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            transition: background-color 0.4s, color 0.4s;
+        }
+
+        body.dark {
+            background-color: #121212;
+            color: #f0f0f0;
+        }
+
+        .trade-container {
+            background-color: #ffffff;
+            padding: 30px 40px;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+            transition: background-color 0.4s, color 0.4s;
+        }
+
+        body.dark .trade-container {
+            background-color: #1e1e1e;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        h1 {
+            color: inherit;
+            margin-bottom: 20px;
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .crypto-info {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        body.dark .crypto-info {
+            border-bottom: 1px solid #333;
+        }
+
+        .crypto-info img {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .crypto-info .name {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .crypto-info .price {
+            font-size: 20px;
+            color: #2575fc;
+            font-weight: 500;
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 15px;
+            color: inherit;
+        }
+
+        .input-group input {
+            width: calc(100% - 20px);
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            font-size: 16px;
+            background-color: #f8f9fc;
+            color: #2f2e41;
+            transition: border-color 0.3s;
+        }
+        body.dark .input-group input {
+            background-color: #2a2a2a;
+            border-color: #555;
+            color: #f0f0f0;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #2575fc;
+            box-shadow: 0 0 0 3px rgba(37, 117, 252, 0.2);
+        }
+
+        /* تعديل: منع تعديل الحقل */
+        .input-group input[readonly] {
+            background-color: #e9ecef;
+            cursor: not-allowed;
+        }
+
+        .buy-btn {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            padding: 15px 35px;
+            font-size: 18px;
+            font-weight: 700;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(101, 65, 255, 0.4);
+            transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            width: 100%;
+            max-width: 250px;
+            margin-top: 15px;
+        }
+
+        .buy-btn:hover {
+            background: linear-gradient(135deg, #7c27d1 0%, #3a7eff 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(101, 65, 255, 0.6);
+        }
+
+        .buy-btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        /* Countdown Timer Styles */
+        .countdown-wrapper {
+            position: relative;
+            width: 140px;
+            height: 140px;
+            margin: 30px auto;
+            display: none;
+        }
+
+        .countdown-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transform: rotate(0deg); /* تبدأ العد من فوق */
+        }
+
+        .countdown-circle {
+            fill: none;
+            stroke: #eee;
+            stroke-width: 3;
+        }
+        body.dark .countdown-circle {
+            stroke: #333;
+        }
+
+        .countdown-progress {
+            fill: none;
+            stroke: #1b08c4;
+            stroke-width: 2;
+            stroke-linecap: round;
+            transform-origin: center;
+            transition: stroke-dashoffset 1s linear;
+        }
+
+        .countdown-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 32px;
+            font-weight: 700;
+            color: #2f2e41;
+        }
+        body.dark .countdown-text {
+            color: #f0f0f0;
+        }
+
+        #transactionResult {
+            margin-top: 25px;
+            font-size: 20px;
+            font-weight: 600;
+            color: #28a745;
+            display: none;
+        }
+        #transactionResult.error {
+            color: #dc3545;
+        }
+
+        /* تعديل: منع الضغط على زر العودة حتى انتهاء التداول */
+        .back-btn {
+            margin-top: 30px;
+            background-color: #6c757d;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background-color 0.3s;
+            display: inline-block;
+            pointer-events: none;
+            opacity: 0.5;
+            user-select: none;
+        }
+
+        .back-btn.enabled {
+            pointer-events: auto;
+            opacity: 1;
+            user-select: auto;
+        }
+
+        .back-btn:hover.enabled {
+            background-color: #5a6268;
+        }
+
+        /* زر وضع الداكن */
+        .dark-mode-btn {
+          position: absolute;
+          top: 20px;
+          right: 20px;
+          background: none;
+          border: none;
+          padding: 10px 14px;
+          border-radius: 8px;
+          font-size: 14px;
+          cursor: pointer;
+          color: inherit;
+          transition: color 0.3s;
+          font-weight: 600;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .dark-mode-btn:hover {
+          color: #2575fc;
+        }
+
+        .icon-moon {
+            width: 24px;
+            height: 24px;
+        }
+    
+@keyframes popIn {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+    60% {
+        transform: scale(1.2);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+</style>
+</head>
+<body>
+    <button class="dark-mode-btn" aria-label="Toggle Dark Mode" onclick="toggleDarkMode()" title="Toggle Dark Mode">
+        <svg xmlns="http://www.w3.org/2000/svg"
+            width="24" height="24"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            class="icon-moon">
+        <path d="M21 12.79A9 9 0 1111.21 3a7 7 0 109.79 9.79z"/>
+        </svg>
+    </button>
+
+    <div class="trade-container">
+        <h1>Trade Bitcoin (BTC)</h1>
+
+        <div class="crypto-info">
+            <img src="assets/icons/btc.png" alt="Bitcoin Icon">
+            <span class="name">Bitcoin</span>
+            <span class="price" id="currentPrice">$105,060.33</span>
+        </div>
+
+        <div class="input-group">
+            <label for="tradeAmount">Amount (USD)</label>
+            <input type="number" id="tradeAmount" readonly>
+        </div>
+
+        <button class="buy-btn" id="buyButton">Buy </button>
+
+        <div class="countdown-wrapper" id="countdownWrapper">
+            <svg class="countdown-svg" viewBox="0 0 40 40">
+                <path class="countdown-circle"
+                      d="M20 2.0845
+                         a 17.9155 17.9155 0 0 1 0 35.831
+                         a 17.9155 17.9155 0 0 1 0 -35.831"
+                />
+                <path class="countdown-progress"
+                      id="countdownProgress"
+                      d="M20 2.0845
+                         a 17.9155 17.9155 0 0 1 0 35.831
+                         a 17.9155 17.9155 0 0 1 0 -35.831"
+                />
+            </svg>
+            <span class="countdown-text" id="countdownText">180</span>
+        </div>
+
+        <div id="transactionResult"></div>
+
+        <a href="home.html" class="back-btn" id="backBtn">Back to Home</a>
+    </div>
+
+    <script>
+        const tradeAmountInput = document.getElementById('tradeAmount');
+        const buyButton = document.getElementById('buyButton');
+        const countdownWrapper = document.getElementById('countdownWrapper');
+        const countdownText = document.getElementById('countdownText');
+        const countdownProgress = document.getElementById('countdownProgress');
+        const transactionResult = document.getElementById('transactionResult');
+        const backBtn = document.getElementById('backBtn');
+
+        // جلب الرصيد من home.html (مثلاً من localStorage)
+        // لازم يكون في home.html: localStorage.setItem('maxBalance', 'قيمة الرصيد');
+       
+        // تعيين القيمة في الحقل ومنع التعديل
+        tradeAmountInput.value = maxBalance.toFixed(2);
+
+        const initialTime = 180; // 180 ثانية
+        let timeLeft = initialTime;
+        let animationFrameId;
+
+       
+
+        // منع زر العودة من العمل إلا بعد النتيجة
+        backBtn.addEventListener('click', (e) => {
+            if (!backBtn.classList.contains('enabled')) {
+                e.preventDefault();
+            }
+        });
+
+        function startCountdown() {
+            buyButton.disabled = true;
+            tradeAmountInput.disabled = true;
+            countdownWrapper.style.display = 'block';
+            transactionResult.style.display = 'none';
+
+            const circumference = 2 * Math.PI * 17.9155;
+            countdownProgress.style.strokeDasharray = `${circumference} ${circumference}`;
+            countdownProgress.style.strokeDashoffset = 0;
+
+            let startTime = Date.now();
+
+            function animate() {
+    const elapsed = (Date.now() - startTime) / 1000; // ثواني
+    timeLeft = Math.max(0, Math.ceil(initialTime - elapsed));
+
+    const progress = timeLeft / initialTime;
+    const dashoffset = circumference * (1 - progress);
+    countdownProgress.style.strokeDashoffset = dashoffset;
+    countdownText.textContent = timeLeft;
+
+    
+if (timeLeft <= 0) {
+    countdownWrapper.style.display = 'none';
+
+    // أنميشن علامة صح مودرن
+    transactionResult.innerHTML = `
+        <div style="
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 12px;
+            background-color: #28a745;
+            padding: 25px 30px;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(40, 167, 69, 0.2);
+            max-width: 100%;
+            animation: fadeInUp 0.7s ease;
+        ">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none"
+                 stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+                 style="transform: scale(0); animation: popIn 0.6s forwards;">
+                <polyline points="20 6 9 17 4 12" />
+            </svg>
+            <span style="font-size: 22px; font-weight: 700; color: #ffffff;">Trade Successful!</span>
+        </div>
+    `;
+
+    // تعطيل الزر نهائيًا بعد انتهاء الوقت
+    buyButton.disabled = true;
+    buyButton.style.opacity = '0.5';
+    buyButton.style.cursor = 'not-allowed';
+
+    // تفعيل زر الرجوع
+    backBtn.classList.add('enabled');
+    transactionResult.className = '';
+    transactionResult.style.display = 'block';
+
+    return;
+}
+
+
+    animationFrameId = requestAnimationFrame(animate);
+}
+
+
+                animationFrameId = requestAnimationFrame(animate);
+            }
+
+            animationFrameId = requestAnimationFrame(animate);
+        
+
+        buyButton.addEventListener('click', () => {
+            const amount = parseFloat(tradeAmountInput.value);
+            if (isNaN(amount) || amount <= 0) {
+                transactionResult.textContent = 'Please enter a valid amount.';
+                transactionResult.className = 'error';
+                transactionResult.style.display = 'block';
+                return;
+            }
+            transactionResult.style.display = 'none';
+            startCountdown();
+        });
+
+        // Dark Mode Toggle
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark');
+            if(document.body.classList.contains('dark')){
+                localStorage.setItem('darkMode', 'enabled');
+            } else {
+                localStorage.removeItem('darkMode');
+            }
+        }
+
+        window.onload = () => {
+            if (localStorage.getItem('darkMode') === 'enabled') {
+                document.body.classList.add('dark');
+            }
+        };
+
+        // تغيير العملة حسب رابط الصفحة (اختياري)
+        const urlParams = new URLSearchParams(window.location.search);
+        const symbol = urlParams.get('symbol') || 'BTC';
+
+        const cryptoData = {
+            BTC: { name: "Bitcoin", price: 105060.33 },
+            ETH: { name: "Ethereum", price: 2538.9 },
+            USDT: { name: "Tether", price: 1.0 },
+            BNB: { name: "Binance Coin", price: 651.31 },
+            XRP: { name: "Ripple", price: 2.15 }
+        };
+
+        const selected = cryptoData[symbol] || cryptoData["BTC"];
+        document.querySelector("h1").textContent = `Trade ${selected.name} (${symbol})`;
+        document.querySelector(".crypto-info img").src = `assets/icons/${symbol.toLowerCase()}.png`;
+        document.querySelector(".crypto-info .name").textContent = selected.name;
+        document.querySelector(".crypto-info .price").textContent = `$${selected.price.toFixed(2)}`;
+    </script> 
+</script><script>
+  const users = {
+    yazeed: { password: "999555", balance: 12340 },
+    ali: { password: "newpass", balance: 90800 },
+    moh: { password: "pass123", balance: 77777 }
+  };
+
+  window.addEventListener("DOMContentLoaded", () => {
+    const tradeAmountInput = document.getElementById('tradeAmount');
+    const buyButton = document.getElementById('buyButton');
+    const countdownWrapper = document.getElementById('countdownWrapper');
+    const countdownText = document.getElementById('countdownText');
+    const countdownProgress = document.getElementById('countdownProgress');
+    const transactionResult = document.getElementById('transactionResult');
+    const backBtn = document.getElementById('backBtn');
+
+    const currentUser = localStorage.getItem("loggedUser");
+
+    if (!currentUser || !users[currentUser]) {
+      alert("Please login first.");
+      window.location.href = "login.html";
+      return;
+    }
+
+    const maxBalance = users[currentUser].balance;
+    tradeAmountInput.value = maxBalance.toFixed(2);
+
+    const initialTime = 180;
+    let animationFrameId;
+
+    function startCountdown() {
+      let timeLeft = initialTime;
+
+      buyButton.disabled = true;
+      tradeAmountInput.disabled = true;
+      countdownWrapper.style.display = 'block';
+      transactionResult.style.display = 'none';
+
+      const circumference = 2 * Math.PI * 17.9155;
+      countdownProgress.style.strokeDasharray = `${circumference} ${circumference}`;
+      countdownProgress.style.strokeDashoffset = 0;
+
+      let startTime = Date.now();
+
+      function animate() {
+        const elapsed = (Date.now() - startTime) / 1000;
+        timeLeft = Math.max(0, Math.ceil(initialTime - elapsed));
+
+        const progress = timeLeft / initialTime;
+        const dashoffset = circumference * (1 - progress);
+        countdownProgress.style.strokeDashoffset = dashoffset;
+        countdownText.textContent = timeLeft;
+
+        
+if (timeLeft <= 0) {
+    countdownWrapper.style.display = 'none';
+
+    // أنميشن علامة صح مودرن
+    transactionResult.innerHTML = `
+        <div style="
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 12px;
+            background-color: #28a745;
+            padding: 25px 30px;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(40, 167, 69, 0.2);
+            max-width: 100%;
+            animation: fadeInUp 0.7s ease;
+        ">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none"
+                 stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+                 style="transform: scale(0); animation: popIn 0.6s forwards;">
+                <polyline points="20 6 9 17 4 12" />
+            </svg>
+            <span style="font-size: 22px; font-weight: 700; color: #ffffff;">Trade Successful!</span>
+        </div>
+    `;
+
+    // تعطيل الزر نهائيًا بعد انتهاء الوقت
+    buyButton.disabled = true;
+    buyButton.style.opacity = '0.5';
+    buyButton.style.cursor = 'not-allowed';
+
+    // تفعيل زر الرجوع
+    backBtn.classList.add('enabled');
+    transactionResult.className = '';
+    transactionResult.style.display = 'block';
+
+    return;
+}
+
+
+        animationFrameId = requestAnimationFrame(animate);
+      }
+
+      animationFrameId = requestAnimationFrame(animate);
+    }
+
+    buyButton.addEventListener('click', () => {
+      const amount = parseFloat(tradeAmountInput.value);
+      if (isNaN(amount) || amount <= 0) {
+        transactionResult.textContent = 'Please enter a valid amount.';
+        transactionResult.className = 'error';
+        transactionResult.style.display = 'block';
+        return;
+      }
+      transactionResult.style.display = 'none';
+      backBtn.classList.remove('enabled');
+
+      startCountdown();
+    });
+
+    // زر العودة يكون معطل بالبداية
+    backBtn.classList.add('enabled');
+    backBtn.addEventListener('click', (e) => {
+      if (!backBtn.classList.contains('enabled')) {
+        e.preventDefault();
+      }
+    });
+
+    // Dark mode
+    if (localStorage.getItem('darkMode') === 'enabled') {
+      document.body.classList.add('dark');
+    }
+
+    // تغيير البيانات حسب العملة
+    const urlParams = new URLSearchParams(window.location.search);
+    const symbol = urlParams.get('symbol') || 'BTC';
+
+    const cryptoData = {
+      BTC: { name: "Bitcoin", price: 105060.33 },
+      ETH: { name: "Ethereum", price: 2538.9 },
+      USDT: { name: "Tether", price: 1.0 },
+      BNB: { name: "Binance Coin", price: 651.31 },
+      XRP: { name: "Ripple", price: 2.15 }
+    };
+
+    const selected = cryptoData[symbol] || cryptoData["BTC"];
+    document.querySelector("h1").textContent = `Trade ${selected.name} (${symbol})`;
+    document.querySelector(".crypto-info img").src = `assets/icons/${symbol.toLowerCase()}.png`;
+    document.querySelector(".crypto-info .name").textContent = selected.name;
+    document.querySelector(".crypto-info .price").textContent = `$${selected.price.toFixed(2)}`;
+  });
+
+  function toggleDarkMode() {
+    document.body.classList.toggle('dark');
+    if (document.body.classList.contains('dark')) {
+      localStorage.setItem('darkMode', 'enabled');
+    } else {
+      localStorage.removeItem('darkMode');
+    }
+  }
+</script>
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>quicky - Login</title>
+  <style>
+    /* هذا الكود تم إضافته أو تعديله */
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      background-color: #f0f2f5; /* يمكنك تغيير هذا اللون إذا أردت خلفية مختلفة لصفحة الـ body */
+      transition: background-color 0.3s ease;
+    }
+
+    .login-container {
+      background: linear-gradient(to right, #6a11cb, #2575fc); /* الخلفية المتدرجة من كود لوحة التحكم */
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); /* ظل محسّن */
+      text-align: center;
+      width: 350px;
+      color: white; /* لجعل النص أبيض ليناسب الخلفية الداكنة */
+    }
+
+    .login-logo {
+      width: 210px;
+      margin-bottom: 50px;
+      border-radius: 50000000000000000000000000000000000000000%; /* لجعل الشعار دائريًا إذا كان شعار دائري */
+     
+    }
+
+    h2 {
+      margin-bottom: 60px;
+      font-size: 28px;
+      font-weight: bold;
+    }
+
+    p {
+      margin-bottom: 40px;
+      font-size: 16px;
+      opacity: 0.9;
+    }
+
+    input[type="text"],
+    input[type="password"] {
+      width: calc(100% - 20px);
+      padding: 12px 10px;
+      margin-bottom: 20px;
+      border: none;
+      border-radius: 8px;
+      background-color: rgba(255, 255, 255, 0.95); /* خلفية فاتحة للحقول */
+      color: #333;
+      font-size: 16px;
+      outline: none;
+      transition: background-color 0.3s, box-shadow 0.3s;
+    }
+
+    input[type="text"]::placeholder,
+    input[type="password"]::placeholder {
+      color: #777;
+    }
+
+    input[type="text"]:focus,
+    input[type="password"]:focus {
+      background-color: white;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
+    }
+
+    button {
+      background-color: white; /* زر أبيض ليبرز على الخلفية المتدرجة */
+      color: #233a85; /* لون أزرق للزر */
+      padding: 15px 30px;
+      border: none;
+      border-radius: 8px;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      width: 100%;
+      transition: background-color 0.3s, transform 0.2s, color 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px; /* مسافة بين النص والأيقونة */
+    }
+
+    button:hover {
+      background-color: #e6e6e6; /* لون أغمق عند التحويم */
+      transform: translateY(-2px); /* تأثير بسيط عند التحويم */
+      color: #1a5ac5;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <img src="logo2.png" alt="quicky Logo" class="login-logo" />
+    <h2>Welcome to Quicky! </h2>
+    <p>Please enter your credentials</p>
+    <input type="text" id="username" placeholder=" Username" />
+    <input type="password" id="password" placeholder=" Password" />
+    <button onclick="login()"> Login</button>
+  </div>
+  <script src="script.js?v=104"></script>
+
+</body>
+</html>
