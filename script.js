@@ -1,8 +1,8 @@
 // ✅ بيانات المستخدمين (تقدر تغير الرصيد والباسورد هنا)
 const users = {
-  yazeed: { password: "999555", balance: 12340 },
-  ali: { password: "newpass", balance: 90800 },
-  moh: { password: "pass123", balance: 77777 }
+  yazeed: { password: "999999", balance: 1234 },
+  ali: { password: "newpass", balance: 9080 },
+  moh: { password: "pass123", balance: 7777 }
 };
 
 function login() {
