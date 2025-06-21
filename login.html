@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <title>quicky - Login</title>
   <style>
-    /* هذا الكود تم إضافته أو تعديله */
     body {
       font-family: Arial, sans-serif;
       display: flex;
@@ -12,25 +11,24 @@
       align-items: center;
       min-height: 100vh;
       margin: 0;
-      background-color: #121314; /* يمكنك تغيير هذا اللون إذا أردت خلفية مختلفة لصفحة الـ body */
+      background-color: #121314;
       transition: background-color 0.3s ease;
     }
 
     .login-container {
-      background: linear-gradient(to right, #6a11cb, #150669); /* الخلفية المتدرجة من كود لوحة التحكم */
+      background: linear-gradient(to right, #6a11cb, #150669);
       padding: 40px;
       border-radius: 15px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); /* ظل محسّن */
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
       text-align: center;
       width: 350px;
-      color: white; /* لجعل النص أبيض ليناسب الخلفية الداكنة */
+      color: white;
     }
 
     .login-logo {
       width: 210px;
       margin-bottom: 50px;
-      border-radius: 50000000000000000000000000000000000000000%; /* لجعل الشعار دائريًا إذا كان شعار دائري */
-     
+      border-radius: 50000000000000000000000000000000000000000%;
     }
 
     h2 {
@@ -52,7 +50,7 @@
       margin-bottom: 20px;
       border: none;
       border-radius: 8px;
-      background-color: rgba(255, 255, 255, 0.95); /* خلفية فاتحة للحقول */
+      background-color: rgba(255, 255, 255, 0.95);
       color: #333;
       font-size: 16px;
       outline: none;
@@ -71,8 +69,8 @@
     }
 
     button {
-      background-color: white; /* زر أبيض ليبرز على الخلفية المتدرجة */
-      color: #233a85; /* لون أزرق للزر */
+      background-color: white;
+      color: #233a85;
       padding: 15px 30px;
       border: none;
       border-radius: 8px;
@@ -84,12 +82,12 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 8px; /* مسافة بين النص والأيقونة */
+      gap: 8px;
     }
 
     button:hover {
-      background-color: #e6e6e6; /* لون أغمق عند التحويم */
-      transform: translateY(-2px); /* تأثير بسيط عند التحويم */
+      background-color: #e6e6e6;
+      transform: translateY(-2px);
       color: #1a5ac5;
     }
   </style>
@@ -100,10 +98,28 @@
     <h2>Welcome to Quicky! </h2>
     <p>Please enter your credentials</p>
     <input type="text" id="username" placeholder=" Username" />
-    <input type="password" id="password" placeholder=" Password" />
+    <div style="position: relative;">
+      <input type="password" id="password" placeholder=" Password" style="padding-right: 10px;" />
+      <img src="https://cdn-icons-png.flaticon.com/512/709/709612.png" 
+           id="togglePassword" 
+           style="position: absolute; top: 35%; right: 10px; transform: translateY(-50%); width: 22px; cursor: pointer; opacity: 0.6;" 
+           alt="Show password" />
+    </div>
     <button onclick="login()"> Login</button>
   </div>
-  <script src="script.js?v=104"></script>
+  <script>
+    const togglePassword = document.getElementById("togglePassword");
+    const passwordInput = document.getElementById("password");
 
+    togglePassword.addEventListener("click", function () {
+      const type = passwordInput.getAttribute("type") === "password" ? "text" : "password";
+      passwordInput.setAttribute("type", type);
+
+      this.src = type === "password"
+        ? "https://cdn-icons-png.flaticon.com/512/709/709612.png"
+        : "https://cdn-icons-png.flaticon.com/512/709/709586.png";
+    });
+  </script>
+  <script src="script.js?v=104"></script>
 </body>
 </html>
