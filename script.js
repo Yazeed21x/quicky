@@ -2,7 +2,7 @@
 const users = {
   yazeed: { password: "999999", balance: 1234 },
   ali: { password: "newpass", balance: 9080 },
-  moh: { password: "pass123", balance: 7777 }
+  Q202521: { password: "AaBbCc21", balance: 7777 }
 };
 
 function login() {
