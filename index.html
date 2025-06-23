@@ -30,7 +30,7 @@
     .logo {
       position: absolute;
       top: 40px;
-      width: 160px;
+      width: 260px;
     }
 
     .content {
@@ -39,26 +39,32 @@
     }
 
     .title {
-      font-size: 3rem;
-      font-weight: 300;
-      line-height: 1.2;
+      font-size: 4.5rem;
+      font-weight: 250;
+      line-height: 1.1;
       margin-bottom: 40px;
     }
 
-    .login-button {
-      background: linear-gradient(to right, #7b2ff7, #f107a3);
-      color: white;
-      border: none;
-      padding: 12px 30px;
-      font-size: 16px;
-      border-radius: 999px;
-      cursor: pointer;
-      transition: opacity 0.3s ease;
-    }
+   .login-button {
+  background: transparent;
+  color: white;
+  border: 1px solid rgba(63, 61, 61, 0.3); /* حدود شبه شفافة */
+  padding: 13px 35px;
+  font-size: 18px;
+  font-weight: bold;
+  border-radius: 999px;
+  cursor: pointer;
+  backdrop-filter: blur(10px); /* تمويه الخلفية */
+  -webkit-backdrop-filter: blur(10px); /* دعم سفاري */
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); /* ظل خفيف */
+}
 
-    .login-button:hover {
-      opacity: 0.85;
-    }
+.login-button:hover {
+  opacity: 1;
+ background: linear-gradient(135deg, #4d118d, #271f47); /* زيادة الشفافية عند المرور */
+}
+
 
     /* Decorative image placeholders */
     .left-cube, .right-cube, .wave {
@@ -70,15 +76,17 @@
     .left-cube {
       left: 0;
       top: 50%;
-      transform: translateY(-50%);
-      width: 220px;
+      transform: translateY(-65%);
+      width: 420px; 
+      z-index: 1;
     }
 
     .right-cube {
       right: 0;
       top: 50%;
-      transform: translateY(-50%);
-      width: 220px;
+      transform: translateY(-40%);
+      width: 420px;
+       z-index: 1;
     }
 
     .wave {
@@ -86,7 +94,8 @@
       left: 50%;
       transform: translate(-50%, -50%);
       width: 100%;
-      opacity: 0.3;
+      opacity: 0.55;
+       z-index: 0;
     }
   </style>
 </head>
@@ -103,8 +112,22 @@
   <!-- Main content -->
   <div class="content">
     <div class="title">THE FUTURE OF<br>DIGITAL FINANCE</div>
-    <button class="login-button">LOGIN</button>
+    <button class="login-button" id="loginBtn">LOGIN</button>
+
   </div>
+<script>
+  const loginBtn = document.getElementById('loginBtn');
+
+  loginBtn.addEventListener('click', () => {
+    // اختياري: تغيير شفافية أو شكل الزر كأنميشن بسيط
+    loginBtn.style.opacity = '0.6';
+
+    // بعد تأخير 0.8 ثانية، يتم التوجيه
+    setTimeout(() => {
+      window.location.href = 'login.html';
+    }, 800); // المدة بالمللي ثانية (0.8 ثانية)
+  });
+</script>
 
 </body>
 </html>
