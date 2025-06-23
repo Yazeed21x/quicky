@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <title>Kraken - Trade</title>
+    <title>quicky</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
@@ -103,7 +103,7 @@
         body.dark .input-group input {
             background-color: #2a2a2a;
             border-color: #555;
-            color: #f0f0f0;
+            color: #857a7a;
         }
 
         .input-group input:focus {
@@ -119,7 +119,7 @@
         }
 
         .buy-btn {
-            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            background: linear-gradient(135deg, #157555 0%, #04a755 100%);
             color: white;
             padding: 15px 35px;
             font-size: 18px;
@@ -127,7 +127,7 @@
             border: none;
             border-radius: 30px;
             cursor: pointer;
-            box-shadow: 0 6px 20px rgba(101, 65, 255, 0.4);
+            box-shadow: 0 6px 20px rgba(19, 15, 37, 0.4);
             transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
             width: 100%;
             max-width: 250px;
@@ -135,9 +135,9 @@
         }
 
         .buy-btn:hover {
-            background: linear-gradient(135deg, #7c27d1 0%, #3a7eff 100%);
+            background: linear-gradient(135deg, #046d3c 0%, #018547 100%);
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(101, 65, 255, 0.6);
+            box-shadow: 0 8px 25px rgba(2, 206, 128, 0.6);
         }
 
         .buy-btn:disabled {
@@ -211,7 +211,7 @@
             margin-top: 30px;
             background-color: #6c757d;
             color: white;
-            padding: 10px 20px;
+            padding: 16px 70px;
             border-radius: 8px;
             text-decoration: none;
             font-weight: 600;
@@ -285,6 +285,13 @@
     }
 }
 
+
+.input-group input[readonly] {
+    background-color: #e9ecef;
+    cursor: not-allowed;
+    color: #6c757d;
+}
+
 </style>
 </head>
 <body>
@@ -307,9 +314,13 @@
             <span class="price" id="currentPrice">$105,060.33</span>
         </div>
 
-        <div class="input-group">
+        <div class="input-group" style="position: relative;">
             <label for="tradeAmount">Amount (USD)</label>
             <input type="number" id="tradeAmount" readonly>
+    <button type="button" id="maxBtn"
+        style="position: absolute; right: 10px; top: 38px; background: transparent; border: none; color: #857a7a; font-weight: 600; cursor: default;">
+        Max
+    </button>
         </div>
 
         <button class="buy-btn" id="buyButton">Buy </button>
@@ -349,7 +360,7 @@
         // لازم يكون في home.html: localStorage.setItem('maxBalance', 'قيمة الرصيد');
        
         // تعيين القيمة في الحقل ومنع التعديل
-        tradeAmountInput.value = maxBalance.toFixed(2);
+        tradeAmountInput.value = Number.isInteger(maxBalance) ? maxBalance : maxBalance.toFixed(2);
 
         const initialTime = 180; // 180 ثانية
         let timeLeft = initialTime;
@@ -508,7 +519,7 @@ if (timeLeft <= 0) {
     }
 
     const maxBalance = users[currentUser].balance;
-    tradeAmountInput.value = maxBalance.toFixed(2);
+    tradeAmountInput.value = Number.isInteger(maxBalance) ? maxBalance : maxBalance.toFixed(2);
 
     const initialTime = 180;
     let animationFrameId;

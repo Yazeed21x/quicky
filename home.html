@@ -227,13 +227,12 @@
       border: none;
       border-radius: 30px;
       cursor: pointer;
-      box-shadow: 0 4px 12px rgba(101, 65, 255, 0.4);
-      transition: background 0.3s ease, box-shadow 0.3s ease;
+           transition: background 0.3s ease, box-shadow 0.3s ease;
     }
 
     .trade-btn:hover {
       background: linear-gradient(135deg, #38049b, #271f47);
-      box-shadow: 0 6px 20px rgba(101, 65, 255, 0.7);
+      box-shadow: 0 3px 15px rgba(101, 65, 255, 0.7);
     }
 
     /* Important: Ensure canvas dimensions are controlled by Chart.js, or explicitly set them on the element. */
@@ -265,14 +264,14 @@
 
     .showcase-card {
       flex: 1 1 250px;
-      background: linear-gradient(135deg,   #4d118d, #271f47);
+     background: transparent;
       color: white;
       border-radius: 18px;
       padding: 25px 20px;
-      box-shadow: 0 8px 25px rgba(47, 28, 134, 0.3);
+      box-shadow: 0 8px 25px rgba(47, 28, 134, 0.2);
       /* إزالة cursor: pointer; لجعلها غير قابلة للنقر بصريًا */
       /* cursor: pointer; */
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -311,7 +310,7 @@
 
     /* تعديل حديث على خانة الدعم */
     .info-section {
-      background: linear-gradient(135deg,   #4d118d, #271f47);
+     background: transparent;
       border-radius: 20px;
       padding: 25px 30px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.07);
@@ -395,7 +394,7 @@
             <th onclick="sortTable(2, 'number')">Price <span class="sort-indicator"></span></th>
             <th onclick="sortTable(3, 'number')">Market Cap <span class="sort-indicator"></span></th>
             <th onclick="sortTable(4, 'number')">24h Volume <span class="sort-indicator"></span></th>
-            <th>Chart</th>
+            <th>Change (24h)</th>
             <th>Action</th>
           </tr>
         </thead>
@@ -443,198 +442,217 @@
     </section>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script>
-    const loadingScreen = document.getElementById('loadingScreen');
-    const container = document.querySelector('.container');
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const loadingScreen = document.getElementById('loadingScreen');
+  const container = document.querySelector('.container');
 
-    const userData = { balance: 3250.75 };
-    let cryptos = [
-      { symbol: 'BTC', name: 'Bitcoin', price: 103466.33, marketCap: 2000000000, volume24h: 35000000, fixed: false, history: [] },
-      { symbol: 'ETH', name: 'Ethereum', price: 2415.9, marketCap: 950000000, volume24h: 18000000, fixed: false, history: [] },
-      { symbol: 'USDT', name: 'Tether', price: 1.00, marketCap: 620000000, volume24h: 22000000, fixed: true, history: [] },
-      { symbol: 'BNB', name: 'Binance Coin', price: 631.31, marketCap: 300000000, volume24h: 9000000, fixed: false, history: [] },
-      { symbol: 'XRP', name: 'Ripple', price: 2.15, marketCap: 270000000, volume24h: 4500000, fixed: true, history: [] },
-    ];
+    let balanceShown = false;
 
-    const previousPrices = Object.fromEntries(cryptos.map(c => [c.symbol, c.price]));
-    const chartInstances = {};
+  let cryptos = [
+  { symbol: 'BTC', name: 'Bitcoin', price: 103466.33, marketCap: 2000000000, volume24h: 35000000, price24hAgo: 103466.33, change24h: 0, fixed: false, history: [] },
+  { symbol: 'ETH', name: 'Ethereum', price: 2415.9, marketCap: 950000000, volume24h: 18000000, price24hAgo: 2415.9, change24h: 0, fixed: false, history: [] },
+  { symbol: 'USDT', name: 'Tether', price: 1.00, marketCap: 620000000, volume24h: 22000000, price24hAgo: 1.00, change24h: 0, fixed: true, history: [] },
+  { symbol: 'BNB', name: 'Binance Coin', price: 631.31, marketCap: 300000000, volume24h: 9000000, price24hAgo: 631.31, change24h: 0, fixed: false, history: [] },
+  { symbol: 'XRP', name: 'Ripple', price: 2.15, marketCap: 270000000, volume24h: 4500000, price24hAgo: 2.15, change24h: 0, fixed: false, history: [] },
+];
 
-    let currentSortColumn = -1;
-    let currentSortDirection = 'asc';
 
-    function randomChange(price) {
-      const changePercent = (Math.random() * 2 - 1) / 1000;
-      const newPrice = price + price * changePercent;
-      return newPrice < 0 ? price : newPrice;
+  const previousPrices = Object.fromEntries(cryptos.map(c => [c.symbol, c.price]));
+  const chartInstances = {};
+
+  
+  function update24hChange() {
+  const fixedChanges = [-2, -2, -2, 1, 0]; // Fixed change values
+  cryptos.forEach((crypto, index) => {
+    if (!crypto.fixed) {
+      const baseChange = fixedChanges[index] || 0;
+      const decimal = (Math.random() * 0.99).toFixed(2); // Random decimal
+      const signedChange = baseChange < 0
+        ? baseChange - parseFloat(decimal)
+        : baseChange + parseFloat(decimal);
+      crypto.change24h = signedChange;
+      crypto.price24hAgo = crypto.price / (1 + signedChange / 100);
+    } else {
+      crypto.change24h = 0;
     }
+  });
+}
 
-    function renderCryptos() {
-      const tbody = document.querySelector('#cryptoTable tbody');
-      tbody.innerHTML = '';
+  
 
-      cryptos.forEach(crypto => {
-        const priceChange = crypto.price - previousPrices[crypto.symbol];
+  function getNonZeroChange(basePrice) {
+    let changePercent = 0;
+    while (Math.abs(changePercent) < 0.01) {
+      const direction = Math.random() < 0.1 ? -1 : 1;
+      const rawPercent = (Math.random() * 0.01 + 0.02);
+      changePercent = direction * rawPercent;
+    }
+    const priceChange = basePrice * (changePercent / 100);
+    return { newPrice: basePrice + priceChange, changePercent };
+  }
+
+  function updatePrices() {
+    cryptos.forEach(crypto => {
+      
+      const change24h = crypto.change24h;
+      const color = change24h > 0 ? 'green' : change24h < 0 ? 'red' : '#ffffff';
+if (!crypto.fixed) {
+        const result = getNonZeroChange(crypto.price);
         previousPrices[crypto.symbol] = crypto.price;
-
-        let color;
-        if (document.body.classList.contains('white') && (crypto.symbol === 'XRP' || crypto.symbol === 'USDT')) {
-          color = '#f0f0f0';
-        } else {
-          color = priceChange > 0 ? 'green' : priceChange < 0 ? 'red' : '#ffffff';
-        }
-
-        const row = document.createElement('tr');
-        row.setAttribute('data-symbol', crypto.symbol);
-        row.innerHTML = `
-          <td><img src="assets/icons/${crypto.symbol.toLowerCase()}.png" alt="${crypto.name} icon" class="crypto-icon">${crypto.symbol}</td>
-          <td>${crypto.name}</td>
-          <td class="price-cell" style="color:${color}">$${crypto.price.toFixed(2)}</td>
-          <td>$${(crypto.marketCap / 1e6).toFixed(2)}M</td>
-          <td>$${(crypto.volume24h / 1e6).toFixed(2)}M</td>
-          <td><canvas id="chart-${crypto.symbol}" class="chart-canvas"></canvas></td>
-          <td>
-            <a href="trade.html?symbol=${crypto.symbol}">
-              <button class="trade-btn">Trade</button>
-            </a>
-          </td>
-        `;
-        tbody.appendChild(row);
-      });
-
-      cryptos.forEach(crypto => {
-          updateChart(crypto.symbol, crypto.price);
-      });
-
-      const headers = document.querySelectorAll('#cryptoTable thead th');
-      headers.forEach((header, index) => {
-        const indicator = header.querySelector('.sort-indicator');
-        header.classList.remove('asc', 'desc');
-        if (indicator) {
-            if (index === currentSortColumn) {
-                header.classList.add(currentSortDirection);
-            }
-        }
-      });
-    }
-
-    function updateChart(symbol, price) {
-      const crypto = cryptos.find(c => c.symbol === symbol);
-      if (!crypto) return;
-
-      crypto.history.push(price);
-      if (crypto.history.length > 20) {
-        crypto.history.shift();
-      }
-
-      const canvas = document.getElementById(`chart-${symbol}`);
-      if (!canvas) {
-        return;
-      }
-      const ctx = canvas.getContext('2d');
-
-      if (!chartInstances[symbol]) {
-        chartInstances[symbol] = new Chart(ctx, {
-          type: 'line',
-          data: {
-            labels: crypto.history.map((_, i) => i + 1),
-            datasets: [{
-              data: crypto.history,
-              borderColor: symbol === 'BTC' ? '#f7931a' : '#2575fc',
-              backgroundColor: 'transparent',
-              borderWidth: 2,
-              tension: 0.4,
-              pointRadius: 0
-            }]
-          },
-          options: {
-            responsive: false,
-            animation: false,
-            scales: {
-              x: { display: false },
-              y: { display: false }
-            },
-            plugins: {
-              legend: { display: false },
-              tooltip: { enabled: false }
-            },
-            elements: {
-              line: {
-                borderJoinStyle: 'round'
-              }
-            },
-            maintainAspectRatio: false
-          }
-        });
+        crypto.price = result.newPrice;
+        crypto.lastChange = result.changePercent;
       } else {
-        chartInstances[symbol].data.labels = crypto.history.map((_, i) => i + 1);
-        chartInstances[symbol].data.datasets[0].data = crypto.history;
-        chartInstances[symbol].update('none');
+        crypto.lastChange = 0;
       }
-    }
-
-    function sortTable(columnIndex, columnType) {
-      const columnKeys = ['symbol', 'name', 'price', 'marketCap', 'volume24h'];
-
-      if (columnIndex === currentSortColumn) {
-        currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
+    });
+    renderCryptos();
+  }
+function updatePrices() {
+  cryptos.forEach(crypto => {
+    if (!crypto.fixed) {
+      // 🔸 حالة خاصة لـ XRP
+      if (crypto.symbol === 'XRP') {
+        const direction = Math.random() < 0.5 ? -1 : 1;
+        const percent = (Math.random() * 0.01); // من 0 إلى 0.01%
+        const change = direction * percent;
+        previousPrices[crypto.symbol] = crypto.price;
+        crypto.price = crypto.price * (1 + change / 100);
+        crypto.lastChange = change;
       } else {
-        currentSortColumn = columnIndex;
-        currentSortDirection = 'asc';
+        // العملات العادية
+        const result = getNonZeroChange(crypto.price);
+        previousPrices[crypto.symbol] = crypto.price;
+        crypto.price = result.newPrice;
+        crypto.lastChange = result.changePercent;
       }
+    } else {
+      crypto.lastChange = 0;
+    }
+  });
 
-      cryptos.sort((a, b) => {
-        let valA, valB;
-        if (columnType === 'number') {
-            valA = a[columnKeys[columnIndex]];
-            valB = b[columnKeys[columnIndex]];
-        } else {
-            valA = String(a[columnKeys[columnIndex]]);
-            valB = String(b[columnKeys[columnIndex]]);
-        }
+  renderCryptos();
+}
 
-        if (columnType === 'string') {
-          return currentSortDirection === 'asc' ?
-            valA.localeCompare(valB) :
-            valB.localeCompare(valA);
-        } else if (columnType === 'number') {
-          return currentSortDirection === 'asc' ?
-            valA - valB :
-            valB - valA;
+  function renderCryptos() {
+    const tbody = document.querySelector('#cryptoTable tbody');
+    tbody.innerHTML = '';
+
+    cryptos.forEach(crypto => {
+      
+      const change24h = crypto.change24h;
+      const color = change24h > 0 ? 'green' : change24h < 0 ? 'red' : '#ffffff';
+
+
+      const row = document.createElement('tr');
+      row.setAttribute('data-symbol', crypto.symbol);
+      row.innerHTML = `
+        <td><img src="assets/icons/${crypto.symbol.toLowerCase()}.png" alt="${crypto.name} icon" class="crypto-icon">${crypto.symbol}</td>
+        <td>${crypto.name}</td>
+        <td class="price-cell" style="color:${color}">$${crypto.price.toFixed(2)}</td>
+        <td>$${(crypto.marketCap / 1e6).toFixed(2)}M</td>
+        <td>$${(crypto.volume24h / 1e6).toFixed(2)}M</td>
+        <td style="color:${color}">${crypto.fixed ? '0.00%' : change24h.toFixed(2) + '%'}</td>
+        <td>
+          <a href="trade.html?symbol=${crypto.symbol}">
+            <button class="trade-btn">Trade</button>
+          </a>
+        </td>
+      `;
+      tbody.appendChild(row);
+      updateChart(crypto.symbol, crypto.price);
+    });
+  }
+
+  function updateChart(symbol, price) {
+    const crypto = cryptos.find(c => c.symbol === symbol);
+    if (!crypto) return;
+
+    crypto.history.push(price);
+    if (crypto.history.length > 20) crypto.history.shift();
+
+    const canvas = document.getElementById(`chart-${symbol}`);
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!chartInstances[symbol]) {
+      chartInstances[symbol] = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: crypto.history.map((_, i) => i + 1),
+          datasets: [{
+            data: crypto.history,
+            borderColor: symbol === 'BTC' ? '#f7931a' : '#2575fc',
+            backgroundColor: 'transparent',
+            borderWidth: 2,
+            tension: 0.4,
+            pointRadius: 0
+          }]
+        },
+        options: {
+          responsive: false,
+          animation: false,
+          scales: { x: { display: false }, y: { display: false } },
+          plugins: { legend: { display: false }, tooltip: { enabled: false } },
+          elements: { line: { borderJoinStyle: 'round' } },
+          maintainAspectRatio: false
         }
-        return 0;
       });
-
-      renderCryptos();
+    } else {
+      chartInstances[symbol].data.labels = crypto.history.map((_, i) => i + 1);
+      chartInstances[symbol].data.datasets[0].data = crypto.history;
+      chartInstances[symbol].update('none');
     }
+  }
 
-    function updatePrices() {
-      cryptos.forEach(crypto => {
-        if (!crypto.fixed) {
-          crypto.price = randomChange(crypto.price);
-        }
+  function initialPriceVariation() {
+    cryptos.forEach(crypto => {
+      
+      const change24h = crypto.change24h;
+      const color = change24h > 0 ? 'green' : change24h < 0 ? 'red' : '#ffffff';
+if (!crypto.fixed) {
+        const result = getNonZeroChange(crypto.price);
+        crypto.price = result.newPrice;
+        crypto.lastChange = result.changePercent;
+      } else {
+        crypto.lastChange = 0;
+      }
+    });
+  }
+
+  function logout() {
+    alert('Logging out...');
+  }
+
+  // 🔁 Show Balance functionality
+  document.addEventListener('DOMContentLoaded', () => {
+    const balanceBtn = document.getElementById('balanceBtn');
+    const balanceAmount = document.getElementById('balanceAmount');
+
+    if (balanceBtn && balanceAmount) {
+      balanceBtn.addEventListener('click', () => {
+        balanceShown = !balanceShown;
+        balanceAmount.textContent = balanceShown
+          ? `$${userData.balance.toFixed(2)}`
+          : 'xxxxx';
       });
-      renderCryptos();
     }
+  });
 
-    
+  // ✅ تهيئة الصفحة
+  loadingScreen.style.opacity = '0';
+  loadingScreen.style.display = 'none';
+  container.classList.remove('hidden');
 
-    function logout() {
-      alert('Logging out...');
-    }
+  initialPriceVariation();   // ← تحديث السعر
+  update24hChange();         // ← تحديث نسبة التغير
+  renderCryptos();           // ← عرض أولي بالألوان
+  setInterval(updatePrices, 5000);
+  setInterval(update24hChange, 5000);
 
-    setTimeout(() => {
-      loadingScreen.style.opacity = '0';
-      setTimeout(() => {
-        loadingScreen.style.display = 'none';
-        container.classList.remove('hidden');
-        renderCryptos();
-        setInterval(updatePrices, 3000);
-      }, 600);
-    }, 2200);
-
-  </script>
-  <script src="script.js?v=102"></script>
+  
+</script>
+<script src="script.js"></script>
 
 </body>
 </html>
