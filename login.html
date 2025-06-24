@@ -1,126 +1,153 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>quicky - Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login Page</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
+    * {
       margin: 0;
-      background-color: #121314;
-      transition: background-color 0.3s ease;
+      padding: 0;
+      box-sizing: border-box;
     }
 
-    .login-container {
-      background: linear-gradient(to right, #6a11cb, #150669);
-      padding: 40px;
-      border-radius: 15px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-      text-align: center;
-      width: 350px;
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-image: url('ground.jpg'); /* <-- عدل الصورة هنا */
+      background-size: cover;
+      background-position: center;
+      height: 95vh;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 20%;
       color: white;
     }
 
-    .login-logo {
-      width: 210px;
-      margin-bottom: 50px;
-      border-radius: 50000000000000000000000000000000000000000%;
+    .login-container {
+      width: 350px;
+      max-width: 90%;
     }
 
-    h2 {
-      margin-bottom: 60px;
-      font-size: 28px;
-      font-weight: bold;
-    }
-
-    p {
-      margin-bottom: 40px;
-      font-size: 16px;
-      opacity: 0.9;
-    }
-
-    input[type="text"],
-    input[type="password"] {
-      width: calc(100% - 20px);
-      padding: 12px 10px;
-      margin-bottom: 20px;
-      border: none;
-      border-radius: 8px;
-      background-color: rgba(255, 255, 255, 0.95);
-      color: #333;
-      font-size: 16px;
-      outline: none;
-      transition: background-color 0.3s, box-shadow 0.3s;
-    }
-
-    input[type="text"]::placeholder,
-    input[type="password"]::placeholder {
-      color: #777;
-    }
-
-    input[type="text"]:focus,
-    input[type="password"]:focus {
-      background-color: white;
-      box-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
-    }
-
-    button {
-      background-color: white;
-      color: #233a85;
-      padding: 15px 30px;
-      border: none;
-      border-radius: 8px;
-      font-size: 18px;
-      font-weight: bold;
-      cursor: pointer;
-      width: 100%;
-      transition: background-color 0.3s, transform 0.2s, color 0.3s;
+    .nav {
+      position: absolute;
+      top: 40px;
+      right: 450px;
       display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
+      gap: 30px;
+      font-size: 13px;
+      font-weight: bold;
     }
 
-    button:hover {
-      background-color: #e6e6e6;
-      transform: translateY(-2px);
-      color: #1a5ac5;
+    .nav a {
+      text-decoration: none;
+      color: white;
+      position: relative;
+    }
+
+    .nav a.active::after {
+      content: '';
+      position: absolute;
+      bottom: -5px;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background-color: white;
+    }
+
+    .title {
+      font-size: 25px;
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      font-size: 14px;
+      margin-bottom: 30px;
+    }
+
+    .input-group {
+      margin-bottom: 20px;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 14px 20px;
+      border: 1px solid white;
+      border-radius: 30px;
+      background: transparent;
+      color: white;
+      font-style: italic;
+      outline: none;
+    }
+
+    .forgot-password {
+      font-size: 13px;
+      text-align: right;
+      margin-bottom: 30px;
+    }
+
+    .forgot-password a {
+      color: white;
+      text-decoration: underline;
+    }
+
+    .login-button {
+      width: 100%;
+      padding: 15px 0;
+      border-radius: 999px;
+      border: none;
+      background-color: white;
+      color: #1c2841;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .login-button:hover {
+      background-color: #f0f0f0;
+    }
+
+    .input-icon {
+      position: relative;
+    }
+
+    .input-icon::after {
+      content: '👁️'; /* استبدلها بأيقونة لو تحب */
+      position: absolute;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: white;
     }
   </style>
 </head>
 <body>
   <div class="login-container">
-    <img src="logo2.png" alt="quicky Logo" class="login-logo" />
-    <h2>Welcome to Quicky! </h2>
-    <p>Please enter your credentials</p>
-    <input type="text" id="username" placeholder=" Username" />
-    <div style="position: relative;">
-      <input type="password" id="password" placeholder=" Password" style="padding-right: 10px;" />
-      <img src="https://cdn-icons-png.flaticon.com/512/709/709612.png" 
-           id="togglePassword" 
-           style="position: absolute; top: 35%; right: 10px; transform: translateY(-50%); width: 22px; cursor: pointer; opacity: 0.6;" 
-           alt="Show password" />
+    <div class="nav">
+      <a href="#" class="active">LOGIN</a>
+      <a href="#">OUR STORY</a>
+      <a href="#">CONTACT</a>
     </div>
-    <button onclick="login()"> Login</button>
+
+    <div class="title">WELCOME BACK!</div>
+    <div class="subtitle">Login to your account</div>
+
+    <div class="input-group">
+      <input type="text" id="username" placeholder="Username" />
+    </div>
+
+    <div class="input-group input-icon">
+      <input type="password" id="password" placeholder="Password" />
+    </div>
+
+    <div class="forgot-password">
+      <a href="#">Forgot Password?</a>
+    </div>
+
+    <button class="login-button" onclick="login()">Login</button>
   </div>
-  <script>
-    const togglePassword = document.getElementById("togglePassword");
-    const passwordInput = document.getElementById("password");
-
-    togglePassword.addEventListener("click", function () {
-      const type = passwordInput.getAttribute("type") === "password" ? "text" : "password";
-      passwordInput.setAttribute("type", type);
-
-      this.src = type === "password"
-        ? "https://cdn-icons-png.flaticon.com/512/709/709612.png"
-        : "https://cdn-icons-png.flaticon.com/512/709/709586.png";
-    });
-  </script>
-  <script src="script.js?v=104"></script>
+  <script src="script.js"></script>
 </body>
 </html>

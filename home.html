@@ -7,7 +7,7 @@
   <style>
     body {
   font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-  background: linear-gradient(60deg, #38049b, #220141, #271f47);
+  background-image: url('ground.jpg');
   color: #f0f0f0;
   margin: 0;
   padding: 0;
@@ -106,7 +106,7 @@
 }
 
     .balance-section {
-      background: linear-gradient(to right, #4d118d, #271f47);
+      background: linear-gradient(to right, #06041d, #1c0b5f);
       color: white;
       padding: 25px;
       border-radius: 20px;
@@ -219,7 +219,7 @@
     }
 
     .trade-btn {
-      background: linear-gradient(135deg, #4d118d, #271f47);
+      background: linear-gradient(135deg, #1b0e64, #271f47);
       color: white;
       padding: 10px 28px;
       font-size: 16px;
@@ -442,181 +442,106 @@
     </section>
   </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script>
   const loadingScreen = document.getElementById('loadingScreen');
   const container = document.querySelector('.container');
+  let balanceShown = false;
+  let cryptos = [];
 
-    let balanceShown = false;
+  async function fetchInitialData() {
+    try {
+      const res = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=bitcoin,ethereum,tether,binancecoin,ripple');
+      const data = await res.json();
 
-  let cryptos = [
-  { symbol: 'BTC', name: 'Bitcoin', price: 103466.33, marketCap: 2000000000, volume24h: 35000000, price24hAgo: 103466.33, change24h: 0, fixed: false, history: [] },
-  { symbol: 'ETH', name: 'Ethereum', price: 2415.9, marketCap: 950000000, volume24h: 18000000, price24hAgo: 2415.9, change24h: 0, fixed: false, history: [] },
-  { symbol: 'USDT', name: 'Tether', price: 1.00, marketCap: 620000000, volume24h: 22000000, price24hAgo: 1.00, change24h: 0, fixed: true, history: [] },
-  { symbol: 'BNB', name: 'Binance Coin', price: 631.31, marketCap: 300000000, volume24h: 9000000, price24hAgo: 631.31, change24h: 0, fixed: false, history: [] },
-  { symbol: 'XRP', name: 'Ripple', price: 2.15, marketCap: 270000000, volume24h: 4500000, price24hAgo: 2.15, change24h: 0, fixed: false, history: [] },
-];
+      cryptos = data.map(coin => {
+        const initialPrice = coin.current_price;
+        const originalChange = coin.price_change_percentage_24h || 0;
+        const price24hAgo = initialPrice / (1 + originalChange / 100);
 
+        return {
+          symbol: coin.symbol.toUpperCase(),
+          name: coin.name,
+          price: initialPrice,
+          initialPrice: initialPrice,
+          price24hAgo: price24hAgo,
+          marketCap: coin.market_cap,
+          volume24h: coin.total_volume,
+          change24h: originalChange
+        };
+      });
 
-  const previousPrices = Object.fromEntries(cryptos.map(c => [c.symbol, c.price]));
-  const chartInstances = {};
-
-  
-  function update24hChange() {
-  const fixedChanges = [-2, -2, -2, 1, 0]; // Fixed change values
-  cryptos.forEach((crypto, index) => {
-    if (!crypto.fixed) {
-      const baseChange = fixedChanges[index] || 0;
-      const decimal = (Math.random() * 0.99).toFixed(2); // Random decimal
-      const signedChange = baseChange < 0
-        ? baseChange - parseFloat(decimal)
-        : baseChange + parseFloat(decimal);
-      crypto.change24h = signedChange;
-      crypto.price24hAgo = crypto.price / (1 + signedChange / 100);
-    } else {
-      crypto.change24h = 0;
+      renderCryptos();
+    } catch (err) {
+      console.error("Error fetching initial data:", err);
     }
-  });
-}
-
-  
-
-  function getNonZeroChange(basePrice) {
-    let changePercent = 0;
-    while (Math.abs(changePercent) < 0.01) {
-      const direction = Math.random() < 0.1 ? -1 : 1;
-      const rawPercent = (Math.random() * 0.01 + 0.02);
-      changePercent = direction * rawPercent;
-    }
-    const priceChange = basePrice * (changePercent / 100);
-    return { newPrice: basePrice + priceChange, changePercent };
   }
-
-  function updatePrices() {
-    cryptos.forEach(crypto => {
-      
-      const change24h = crypto.change24h;
-      const color = change24h > 0 ? 'green' : change24h < 0 ? 'red' : '#ffffff';
-if (!crypto.fixed) {
-        const result = getNonZeroChange(crypto.price);
-        previousPrices[crypto.symbol] = crypto.price;
-        crypto.price = result.newPrice;
-        crypto.lastChange = result.changePercent;
-      } else {
-        crypto.lastChange = 0;
-      }
-    });
-    renderCryptos();
-  }
-function updatePrices() {
-  cryptos.forEach(crypto => {
-    if (!crypto.fixed) {
-      // 🔸 حالة خاصة لـ XRP
-      if (crypto.symbol === 'XRP') {
-        const direction = Math.random() < 0.5 ? -1 : 1;
-        const percent = (Math.random() * 0.01); // من 0 إلى 0.01%
-        const change = direction * percent;
-        previousPrices[crypto.symbol] = crypto.price;
-        crypto.price = crypto.price * (1 + change / 100);
-        crypto.lastChange = change;
-      } else {
-        // العملات العادية
-        const result = getNonZeroChange(crypto.price);
-        previousPrices[crypto.symbol] = crypto.price;
-        crypto.price = result.newPrice;
-        crypto.lastChange = result.changePercent;
-      }
-    } else {
-      crypto.lastChange = 0;
-    }
-  });
-
-  renderCryptos();
-}
 
   function renderCryptos() {
     const tbody = document.querySelector('#cryptoTable tbody');
     tbody.innerHTML = '';
 
     cryptos.forEach(crypto => {
-      
-      const change24h = crypto.change24h;
-      const color = change24h > 0 ? 'green' : change24h < 0 ? 'red' : '#ffffff';
-
+      const color = crypto.change24h > 0 ? 'green' : crypto.change24h < 0 ? 'red' : '#fff';
 
       const row = document.createElement('tr');
       row.setAttribute('data-symbol', crypto.symbol);
       row.innerHTML = `
-        <td><img src="assets/icons/${crypto.symbol.toLowerCase()}.png" alt="${crypto.name} icon" class="crypto-icon">${crypto.symbol}</td>
-        <td>${crypto.name}</td>
-        <td class="price-cell" style="color:${color}">$${crypto.price.toFixed(2)}</td>
-        <td>$${(crypto.marketCap / 1e6).toFixed(2)}M</td>
-        <td>$${(crypto.volume24h / 1e6).toFixed(2)}M</td>
-        <td style="color:${color}">${crypto.fixed ? '0.00%' : change24h.toFixed(2) + '%'}</td>
-        <td>
-          <a href="trade.html?symbol=${crypto.symbol}">
-            <button class="trade-btn">Trade</button>
-          </a>
-        </td>
-      `;
+    <td>
+    <a href="explore.html?symbol=${crypto.symbol}" style="color: white; text-decoration: none;">
+      <img src="assets/icons/${crypto.symbol.toLowerCase()}.png" alt="${crypto.name} icon" class="crypto-icon">
+      ${crypto.symbol}
+    </a>
+  </td>
+  <td>
+    <a href="explore.html?symbol=${crypto.symbol}" style="color: white; text-decoration: none;">
+      ${crypto.name}
+    </a>
+  </td>
+
+  <td><a href="explore.html?symbol=${crypto.symbol}" style="color: white; text-decoration: none;">${crypto.name}</a></td>
+  <td class="price-cell" style="color:${color}">$${crypto.price.toFixed(2)}</td>
+  <td class="market-cap">$${(crypto.marketCap / 1e6).toFixed(2)}M</td>
+  <td class="volume">$${(crypto.volume24h / 1e6).toFixed(2)}M</td>
+  <td class="change" style="color:${color}">${crypto.change24h.toFixed(2)}%</td>
+  <td>
+    <a href="trade.html?symbol=${crypto.symbol}">
+      <button class="trade-btn">Trade</button>
+    </a>
+  </td>
+`;
+
       tbody.appendChild(row);
-      updateChart(crypto.symbol, crypto.price);
     });
   }
 
-  function updateChart(symbol, price) {
-    const crypto = cryptos.find(c => c.symbol === symbol);
-    if (!crypto) return;
-
-    crypto.history.push(price);
-    if (crypto.history.length > 20) crypto.history.shift();
-
-    const canvas = document.getElementById(`chart-${symbol}`);
-    if (!canvas) return;
-
-    const ctx = canvas.getContext('2d');
-    if (!chartInstances[symbol]) {
-      chartInstances[symbol] = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: crypto.history.map((_, i) => i + 1),
-          datasets: [{
-            data: crypto.history,
-            borderColor: symbol === 'BTC' ? '#f7931a' : '#2575fc',
-            backgroundColor: 'transparent',
-            borderWidth: 2,
-            tension: 0.4,
-            pointRadius: 0
-          }]
-        },
-        options: {
-          responsive: false,
-          animation: false,
-          scales: { x: { display: false }, y: { display: false } },
-          plugins: { legend: { display: false }, tooltip: { enabled: false } },
-          elements: { line: { borderJoinStyle: 'round' } },
-          maintainAspectRatio: false
-        }
-      });
-    } else {
-      chartInstances[symbol].data.labels = crypto.history.map((_, i) => i + 1);
-      chartInstances[symbol].data.datasets[0].data = crypto.history;
-      chartInstances[symbol].update('none');
-    }
-  }
-
-  function initialPriceVariation() {
+  function updateFakePrices() {
     cryptos.forEach(crypto => {
-      
-      const change24h = crypto.change24h;
-      const color = change24h > 0 ? 'green' : change24h < 0 ? 'red' : '#ffffff';
-if (!crypto.fixed) {
-        const result = getNonZeroChange(crypto.price);
-        crypto.price = result.newPrice;
-        crypto.lastChange = result.changePercent;
-      } else {
-        crypto.lastChange = 0;
-      }
+      const row = document.querySelector(`tr[data-symbol="${crypto.symbol}"]`);
+      if (!row) return;
+
+      const priceCell = row.querySelector('.price-cell');
+      const changeCell = row.querySelector('.change');
+
+      const smallStep = (Math.random() * 0.002 - 0.001); // ±0.1%
+      let newPrice = crypto.price * (1 + smallStep);
+
+      // قيود النطاق من السعر الأصلي (±0.5%)
+      const minPrice = crypto.initialPrice * 0.995;
+      const maxPrice = crypto.initialPrice * 1.005;
+      newPrice = Math.min(Math.max(newPrice, minPrice), maxPrice);
+
+      // تحديث نسبة التغير بناء على السعر قبل 24 ساعة الحقيقي
+      const newChange = ((newPrice - crypto.price24hAgo) / crypto.price24hAgo) * 100;
+
+      crypto.price = newPrice;
+      crypto.change24h = newChange;
+
+      const color = newChange > 0 ? 'green' : newChange < 0 ? 'red' : '#fff';
+      priceCell.textContent = `$${newPrice.toFixed(2)}`;
+      priceCell.style.color = color;
+      changeCell.textContent = `${newChange.toFixed(2)}%`;
+      changeCell.style.color = color;
     });
   }
 
@@ -624,7 +549,6 @@ if (!crypto.fixed) {
     alert('Logging out...');
   }
 
-  // 🔁 Show Balance functionality
   document.addEventListener('DOMContentLoaded', () => {
     const balanceBtn = document.getElementById('balanceBtn');
     const balanceAmount = document.getElementById('balanceAmount');
@@ -632,27 +556,19 @@ if (!crypto.fixed) {
     if (balanceBtn && balanceAmount) {
       balanceBtn.addEventListener('click', () => {
         balanceShown = !balanceShown;
-        balanceAmount.textContent = balanceShown
-          ? `$${userData.balance.toFixed(2)}`
-          : 'xxxxx';
       });
     }
+
+    fetchInitialData();
+    setInterval(updateFakePrices, 10000);
+
+    loadingScreen.style.opacity = '0';
+    loadingScreen.style.display = 'none';
+    container.classList.remove('hidden');
   });
+</script><script src="script.js"></script>
 
-  // ✅ تهيئة الصفحة
-  loadingScreen.style.opacity = '0';
-  loadingScreen.style.display = 'none';
-  container.classList.remove('hidden');
 
-  initialPriceVariation();   // ← تحديث السعر
-  update24hChange();         // ← تحديث نسبة التغير
-  renderCryptos();           // ← عرض أولي بالألوان
-  setInterval(updatePrices, 5000);
-  setInterval(update24hChange, 5000);
-
-  
-</script>
-<script src="script.js"></script>
 
 </body>
 </html>
